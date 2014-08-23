@@ -244,7 +244,10 @@ public class ColladaReader {
 					}
 				} // end visual scene
 				
+				// Reading Skinning Info
 				
+				
+				// Reading Animation Info
 				
 			}
 		} catch (JDOMException e) {
