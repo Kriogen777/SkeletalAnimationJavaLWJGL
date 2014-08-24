@@ -245,7 +245,13 @@ public class ColladaReader {
 				} // end visual scene
 				
 				// Reading Skinning Info
-				
+				if(library.getName().equals("library_controllers")){
+					// According to our assumptions we only have one mesh and one skeleton. 
+					// So we will have only one <controller> node in the list of children of <library_controllers>.
+					Element controllerElement = library.getChild("controller",null);
+					Element skinElement = controllerElement.getChild("skin",null);
+					
+				} // end skinning info
 				
 				// Reading Animation Info
 				

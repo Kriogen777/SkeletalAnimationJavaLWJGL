@@ -6,6 +6,7 @@ public class COLLADA {
 	private EffectLibrary m_EffectLibrary = new EffectLibrary();
 	private GeometryLibrary m_GeometryLibrary = new GeometryLibrary();
 	private VisualSceneLibrary m_VisualSceneLibrary = new VisualSceneLibrary();
+	private ControllersLibrary m_ControllersLibrary = new ControllersLibrary();
 	
 	public COLLADA(){
 		m_GeometryLibrary = new GeometryLibrary();
@@ -49,6 +50,14 @@ public class COLLADA {
 
 	public void setM_VisualSceneLibrary(VisualSceneLibrary m_VisualSceneLibrary) {
 		this.m_VisualSceneLibrary = m_VisualSceneLibrary;
+	}
+
+	public ControllersLibrary getM_ControllersLibrary() {
+		return m_ControllersLibrary;
+	}
+
+	public void setM_ControllersLibrary(ControllersLibrary m_ControllersLibrary) {
+		this.m_ControllersLibrary = m_ControllersLibrary;
 	}
 
 	public void visit(VisitDraw vd){
