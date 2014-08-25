@@ -251,6 +251,120 @@ public class ColladaReader {
 					Element controllerElement = library.getChild("controller",null);
 					Element skinElement = controllerElement.getChild("skin",null);
 					
+					// Set up BindShapeMatrix
+					String [] tempBindShapeMatrix = skinElement.getChildText("bind_shape_matrix", null).split(" ");
+					int [] tempIntBindShapeMatrix = new int [tempBindShapeMatrix.length]; 
+					
+					for(int i = 0; i < tempBindShapeMatrix.length; i++){
+						tempIntBindShapeMatrix[i] = Integer.parseInt(tempBindShapeMatrix[i]);
+						// System.out.println(tempIntBindShapeMatrix[i]);
+					}
+					cFile.getM_ControllersLibrary().bind_shape_matrix = tempIntBindShapeMatrix;
+					// End BindShapeMatrix
+					
+					// JOINT, TRANSFORM, WEIGHT Source
+					for(Element sourceElement: skinElement.getChildren("source", null)){
+						if(sourceElement.getChild("technique_common", null).getChild("accessor", null).getChild("param", null).getAttributeValue("name").equals("JOINT")){
+							Source m_Joint = cFile.getM_ControllersLibrary().m_Joint;
+							m_Joint.m_ID = sourceElement.getAttributeValue("id");
+							Element m_nameArray = sourceElement.getChild("Name_array", null);
+							m_Joint.m_Name_Array.m_ID = m_nameArray.getAttributeValue("id");
+							m_Joint.m_Name_Array.m_Count = Integer.parseInt(m_nameArray.getAttributeValue("count"));
+							m_Joint.m_Name_Array.m_Names.addAll(Arrays.asList(m_nameArray.getText().split(" ")));
+							cFile.getM_ControllersLibrary().m_Joint = m_Joint;
+							
+							// Completely Ignoring Its Technique Common
+							
+							// System.out.println("Parsed the joints");
+							// break;
+						}
+						
+						if(sourceElement.getChild("technique_common", null).getChild("accessor", null).getChild("param", null).getAttributeValue("name").equals("TRANSFORM")){
+							Source m_Transform = cFile.getM_ControllersLibrary().m_Transform;
+							m_Transform.m_ID = sourceElement.getAttributeValue("id");
+							Element m_floatArray = sourceElement.getChild("float_array", null);
+							m_Transform.m_Float_Array.m_ID = m_floatArray.getAttributeValue("id");
+							m_Transform.m_Float_Array.m_Count = Integer.parseInt(m_floatArray.getAttributeValue("count"));
+							String [] tempFloats = m_floatArray.getText().split(" ");
+							for(String s:tempFloats){
+								m_Transform.m_Float_Array.m_Floats.add(Float.parseFloat(s));
+							}
+							Element m_TQAccessor = sourceElement.getChild("technique_common", null).getChild("accessor",null);
+							m_Transform.m_Technique_Common.m_Accessor.m_Source = m_TQAccessor.getAttributeValue("source");
+							m_Transform.m_Technique_Common.m_Accessor.m_Count = Integer.parseInt(m_TQAccessor.getAttributeValue("count"));
+							m_Transform.m_Technique_Common.m_Accessor.m_Stride = Integer.parseInt(m_TQAccessor.getAttributeValue("stride"));
+							Param tempP = new Param();
+							tempP.m_Name = "TRANSFORM";
+							tempP.m_Type = m_TQAccessor.getChild("param",null).getAttributeValue("type");
+							m_Transform.m_Technique_Common.m_Accessor.m_Params.add(tempP);
+							
+							// System.out.println("Added transform");
+							
+							cFile.getM_ControllersLibrary().m_Transform = m_Transform;
+						}
+						
+						if(sourceElement.getChild("technique_common", null).getChild("accessor", null).getChild("param", null).getAttributeValue("name").equals("WEIGHT")){
+							Source m_Weights = cFile.getM_ControllersLibrary().m_Weights;
+							m_Weights.m_ID = sourceElement.getAttributeValue("id");
+							Element m_floatArray = sourceElement.getChild("float_array", null);
+							m_Weights.m_Float_Array.m_ID = m_floatArray.getAttributeValue("id");
+							m_Weights.m_Float_Array.m_Count = Integer.parseInt(m_floatArray.getAttributeValue("count"));
+							String [] tempFloats = m_floatArray.getText().split(" ");
+							for(String s:tempFloats){
+								m_Weights.m_Float_Array.m_Floats.add(Float.parseFloat(s));
+							}
+							Element m_TQAccessor = sourceElement.getChild("technique_common", null).getChild("accessor",null);
+							m_Weights.m_Technique_Common.m_Accessor.m_Source = m_TQAccessor.getAttributeValue("source");
+							m_Weights.m_Technique_Common.m_Accessor.m_Count = Integer.parseInt(m_TQAccessor.getAttributeValue("count"));
+							m_Weights.m_Technique_Common.m_Accessor.m_Stride = Integer.parseInt(m_TQAccessor.getAttributeValue("stride"));
+							Param tempP = new Param();
+							tempP.m_Name = "TRANSFORM";
+							tempP.m_Type = m_TQAccessor.getChild("param",null).getAttributeValue("type");
+							m_Weights.m_Technique_Common.m_Accessor.m_Params.add(tempP);
+							
+							// System.out.println("Added transform");
+							
+							cFile.getM_ControllersLibrary().m_Weights = m_Weights;
+						}
+					}
+					// End JOINT, TRANSFORM, WEIGHT Source
+					
+					// Joints inputs
+					for(Element input: skinElement.getChild("joints", null).getChildren("input", null)){
+						Input tempInput = new Input();
+						tempInput.m_Semantic = input.getAttributeValue("semantic");
+						tempInput.m_Source = input.getAttributeValue("source");
+						cFile.getM_ControllersLibrary().m_Joints.m_Inputs.add(tempInput);
+					}
+					// End Joints inputs
+					
+					// Vertex Weights - important
+					Element m_vertexWeights = skinElement.getChild("vertex_weights", null);
+					cFile.getM_ControllersLibrary().m_VertexWeights.m_Count = Integer.parseInt(m_vertexWeights.getAttributeValue("count"));
+					for(Element input: m_vertexWeights.getChildren("input", null)){
+						Input tempInput = new Input();
+						tempInput.m_Semantic = input.getAttributeValue("semantic");
+						tempInput.m_Source = input.getAttributeValue("source");
+						tempInput.m_Offset = input.getAttributeValue("offset");
+						cFile.getM_ControllersLibrary().m_VertexWeights.m_Inputs.add(tempInput);
+					}
+					String [] tempVCS = m_vertexWeights.getChildText("vcount", null).split(" ");
+					int [] tempVC = new int [tempVCS.length];
+					for(int i=0;i<tempVCS.length;i++){
+						tempVC[i] = Integer.parseInt(tempVCS[i]);
+					}
+					cFile.getM_ControllersLibrary().m_VertexWeights.m_VCount = tempVC;
+					
+					String [] tempVS = m_vertexWeights.getChildText("v", null).split(" ");
+					int [] tempV = new int [tempVS.length];
+					for(int i=0;i<tempVS.length;i++){
+						tempV[i] = Integer.parseInt(tempVS[i]);
+					}
+					cFile.getM_ControllersLibrary().m_VertexWeights.m_V = tempV;
+					// System.out.println(tempVS.length);
+					
+					// End Vertex Weights
+					
 				} // end skinning info
 				
 				// Reading Animation Info

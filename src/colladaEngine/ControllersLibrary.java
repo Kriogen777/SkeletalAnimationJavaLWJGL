@@ -6,5 +6,6 @@ public class ControllersLibrary {
 	Source m_Joint = new Source();
 	Source m_Transform = new Source();
 	Source m_Weights = new Source();
-	
+	Joint m_Joints = new Joint();
+	VertexWeight m_VertexWeights = new VertexWeight();
 }
